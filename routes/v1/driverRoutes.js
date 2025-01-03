@@ -22,18 +22,21 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
+ *               driverId:
+ *                 type: string
+ *                 example: "D12345"
  *               name:
  *                 type: string
  *                 example: "John Doe"
- *               age:
- *                 type: integer
- *                 example: 40
+ *               mobile:
+ *                 type: string
+ *                 example: "0712345678"
  *               licenseNumber:
  *                 type: string
- *                 example: "XYZ123456"
- *               busAssigned:
+ *                 example: "LN987654"
+ *               busId:
  *                 type: string
- *                 example: "AB1234"
+ *                 example: "B12345"
  *     responses:
  *       201:
  *         description: Driver created successfully
@@ -60,14 +63,19 @@ router.post("/", authenticate, authorize("admin"), createDriver);
  *                 properties:
  *                   driverId:
  *                     type: string
+ *                     example: "D12345"
  *                   name:
  *                     type: string
- *                   age:
- *                     type: integer
+ *                     example: "John Doe"
+ *                   mobile:
+ *                     type: string
+ *                     example: "0712345678"
  *                   licenseNumber:
  *                     type: string
- *                   busAssigned:
+ *                     example: "LN987654"
+ *                   busId:
  *                     type: string
+ *                     example: "B12345"
  */
 router.get("/", authenticate, authorize("admin"), getAllDrivers);
 
@@ -87,6 +95,26 @@ router.get("/", authenticate, authorize("admin"), getAllDrivers);
  *     responses:
  *       200:
  *         description: Driver details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 driverId:
+ *                   type: string
+ *                   example: "D12345"
+ *                 name:
+ *                   type: string
+ *                   example: "John Doe"
+ *                 mobile:
+ *                   type: string
+ *                   example: "0712345678"
+ *                 licenseNumber:
+ *                   type: string
+ *                   example: "LN987654"
+ *                 busId:
+ *                   type: string
+ *                   example: "B12345"
  *       404:
  *         description: Driver not found
  */
@@ -114,16 +142,16 @@ router.get("/:driverId", authenticate, authorize("admin"), getDriverById);
  *             properties:
  *               name:
  *                 type: string
- *                 example: "John Doe"
- *               age:
- *                 type: integer
- *                 example: 40
+ *                 example: "Jane Doe"
+ *               mobile:
+ *                 type: string
+ *                 example: "0723456789"
  *               licenseNumber:
  *                 type: string
- *                 example: "XYZ123456"
- *               busAssigned:
+ *                 example: "LN654321"
+ *               busId:
  *                 type: string
- *                 example: "AB1234"
+ *                 example: "B54321"
  *     responses:
  *       200:
  *         description: Driver updated successfully

@@ -25,16 +25,22 @@ const router = express.Router();
  *             properties:
  *               routeId:
  *                 type: string
- *                 example: "12345"
- *               departureTime:
- *                 type: string
- *                 example: "2024-12-30T08:00:00Z"
- *               arrivalTime:
- *                 type: string
- *                 example: "2024-12-30T12:00:00Z"
+ *                 example: "R12345"
  *               busId:
  *                 type: string
- *                 example: "98765"
+ *                 example: "B67890"
+ *               startTime:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2025-01-05T08:00:00Z"
+ *               endTime:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2025-01-05T12:00:00Z"
+ *               date:
+ *                 type: string
+ *                 format: date
+ *                 example: "2025-01-05"
  *     responses:
  *       201:
  *         description: Schedule created successfully
@@ -63,12 +69,17 @@ router.post("/", authenticate, authorize("admin"), createSchedule);
  *                     type: string
  *                   routeId:
  *                     type: string
- *                   departureTime:
- *                     type: string
- *                   arrivalTime:
- *                     type: string
  *                   busId:
  *                     type: string
+ *                   startTime:
+ *                     type: string
+ *                     format: date-time
+ *                   endTime:
+ *                     type: string
+ *                     format: date-time
+ *                   date:
+ *                     type: string
+ *                     format: date
  */
 router.get("/", authenticate, getAllSchedules);
 
@@ -88,6 +99,26 @@ router.get("/", authenticate, getAllSchedules);
  *     responses:
  *       200:
  *         description: Schedule details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 scheduleId:
+ *                   type: string
+ *                 routeId:
+ *                   type: string
+ *                 busId:
+ *                   type: string
+ *                 startTime:
+ *                   type: string
+ *                   format: date-time
+ *                 endTime:
+ *                   type: string
+ *                   format: date-time
+ *                 date:
+ *                   type: string
+ *                   format: date
  *       404:
  *         description: Schedule not found
  */
@@ -97,7 +128,7 @@ router.get("/:id", authenticate, getScheduleById);
  * @swagger
  * /api/schedules/route/{routeId}:
  *   get:
- *     summary: Get a schedule by route ID (Admin/Operator/Commuter)
+ *     summary: Get schedules by route ID (Admin/Operator/Commuter)
  *     description: Fetch a list of schedules for a specific route by route ID.
  *     parameters:
  *       - in: path
@@ -112,7 +143,7 @@ router.get("/:id", authenticate, getScheduleById);
  *       404:
  *         description: Route not found
  */
-router.get("/route/:routeId", getScheduleByRouteId);
+router.get("/route/:routeId", authenticate, getScheduleByRouteId);
 
 /**
  * @swagger
@@ -136,16 +167,22 @@ router.get("/route/:routeId", getScheduleByRouteId);
  *             properties:
  *               routeId:
  *                 type: string
- *                 example: "12345"
- *               departureTime:
- *                 type: string
- *                 example: "2024-12-30T08:00:00Z"
- *               arrivalTime:
- *                 type: string
- *                 example: "2024-12-30T12:00:00Z"
+ *                 example: "R12345"
  *               busId:
  *                 type: string
- *                 example: "98765"
+ *                 example: "B67890"
+ *               startTime:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2025-01-05T08:00:00Z"
+ *               endTime:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2025-01-05T12:00:00Z"
+ *               date:
+ *                 type: string
+ *                 format: date
+ *                 example: "2025-01-05"
  *     responses:
  *       200:
  *         description: Schedule updated successfully

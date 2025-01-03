@@ -26,15 +26,36 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               seatId:
- *                 type: string
- *                 example: "abc123"
+ *               seatNumber:
+ *                 type: array
+ *                 items:
+ *                   type: number
+ *                 example: [5, 6]
  *               routeId:
  *                 type: string
  *                 example: "xyz456"
+ *               busId:
+ *                 type: string
+ *                 example: "bus123"
  *     responses:
  *       201:
  *         description: Booking created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: "63aef5c8b9d57b001c2b1234"
+ *                 seatNumber:
+ *                   type: array
+ *                   items:
+ *                     type: number
+ *                   example: [5, 6]
+ *                 status:
+ *                   type: string
+ *                   example: "booked"
  *       400:
  *         description: Bad request
  */
@@ -53,9 +74,9 @@ router.post("/", authenticate, createBooking);
  *           schema:
  *             type: object
  *             properties:
- *               seatId:
- *                 type: string
- *                 example: "abc123"
+ *               seatNumber:
+ *                 type: number
+ *                 example: 5
  *               routeId:
  *                 type: string
  *                 example: "xyz456"
@@ -83,10 +104,16 @@ router.post("/hold", authenticate, holdSeatForUser);
  *               items:
  *                 type: object
  *                 properties:
- *                   seatId:
- *                     type: string
+ *                   seatNumber:
+ *                     type: array
+ *                     items:
+ *                       type: number
  *                   routeId:
  *                     type: string
+ *                   status:
+ *                     type: string
+ *       404:
+ *         description: No bookings found
  */
 router.get("/", authenticate, getBookingsByCommuter);
 
@@ -154,7 +181,8 @@ router.get("/route/:routeId", authenticate, getBookingsByRouteId);
  *             properties:
  *               status:
  *                 type: string
- *                 example: "confirmed"
+ *                 enum: ["available", "booked", "on-hold", "cancelled"]
+ *                 example: "booked"
  *     responses:
  *       200:
  *         description: Status updated successfully
@@ -189,7 +217,25 @@ router.put(
  */
 router.put("/:id/cancel", authenticate, cancelBooking);
 
-// Route for soft deleting a booking (Admin only)
+/**
+ * @swagger
+ * /api/bookings/{id}/soft-delete:
+ *   patch:
+ *     summary: Soft delete a booking (Admin only)
+ *     description: Mark a booking as deleted without permanently removing it.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the booking.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Booking soft-deleted successfully
+ *       404:
+ *         description: Booking not found
+ */
 router.patch(
   "/:id/soft-delete",
   authenticate,
@@ -197,7 +243,25 @@ router.patch(
   softDeleteBooking
 );
 
-// Route for restoring a soft-deleted booking (Admin only)
+/**
+ * @swagger
+ * /api/bookings/{id}/restore:
+ *   patch:
+ *     summary: Restore a soft-deleted booking (Admin only)
+ *     description: Restore a previously soft-deleted booking.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the booking.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Booking restored successfully
+ *       404:
+ *         description: Booking not found
+ */
 router.patch("/:id/restore", authenticate, authorize("admin"), restoreBooking);
 
 module.exports = router;

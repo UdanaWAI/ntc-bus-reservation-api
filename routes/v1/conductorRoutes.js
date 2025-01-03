@@ -22,15 +22,21 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
+ *               conductorId:
+ *                 type: string
+ *                 example: "C12345"
  *               name:
  *                 type: string
  *                 example: "John Doe"
- *               age:
- *                 type: integer
- *                 example: 35
- *               busAssigned:
+ *               mobile:
  *                 type: string
- *                 example: "AB1234"
+ *                 example: "0712345678"
+ *               licenseNumber:
+ *                 type: string
+ *                 example: "LN987654"
+ *               busId:
+ *                 type: string
+ *                 example: "B12345"
  *     responses:
  *       201:
  *         description: Conductor created successfully
@@ -57,12 +63,19 @@ router.post("/", authenticate, authorize("admin"), createConductor);
  *                 properties:
  *                   conductorId:
  *                     type: string
+ *                     example: "C12345"
  *                   name:
  *                     type: string
- *                   age:
- *                     type: integer
- *                   busAssigned:
+ *                     example: "John Doe"
+ *                   mobile:
  *                     type: string
+ *                     example: "0712345678"
+ *                   licenseNumber:
+ *                     type: string
+ *                     example: "LN987654"
+ *                   busId:
+ *                     type: string
+ *                     example: "B12345"
  */
 router.get("/", authenticate, authorize("admin"), getAllConductors);
 
@@ -82,6 +95,26 @@ router.get("/", authenticate, authorize("admin"), getAllConductors);
  *     responses:
  *       200:
  *         description: Conductor details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 conductorId:
+ *                   type: string
+ *                   example: "C12345"
+ *                 name:
+ *                   type: string
+ *                   example: "John Doe"
+ *                 mobile:
+ *                   type: string
+ *                   example: "0712345678"
+ *                 licenseNumber:
+ *                   type: string
+ *                   example: "LN987654"
+ *                 busId:
+ *                   type: string
+ *                   example: "B12345"
  *       404:
  *         description: Conductor not found
  */
@@ -109,13 +142,16 @@ router.get("/:conductorId", authenticate, authorize("admin"), getConductorById);
  *             properties:
  *               name:
  *                 type: string
- *                 example: "John Doe"
- *               age:
- *                 type: integer
- *                 example: 35
- *               busAssigned:
+ *                 example: "Jane Smith"
+ *               mobile:
  *                 type: string
- *                 example: "AB1234"
+ *                 example: "0723456789"
+ *               licenseNumber:
+ *                 type: string
+ *                 example: "LN123456"
+ *               busId:
+ *                 type: string
+ *                 example: "B54321"
  *     responses:
  *       200:
  *         description: Conductor updated successfully

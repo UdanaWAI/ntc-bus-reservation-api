@@ -22,18 +22,18 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               origin:
+ *               routeId:
  *                 type: string
- *                 example: "New York"
- *               destination:
+ *                 example: "R12345"
+ *               startLocation:
  *                 type: string
- *                 example: "Boston"
+ *                 example: "Colombo"
+ *               endLocation:
+ *                 type: string
+ *                 example: "Kandy"
  *               distance:
- *                 type: integer
- *                 example: 215
- *               duration:
- *                 type: string
- *                 example: "4 hours"
+ *                 type: number
+ *                 example: 115
  *     responses:
  *       201:
  *         description: Route created successfully
@@ -60,14 +60,16 @@ router.post("/", authenticate, authorize("admin"), createRoute);
  *                 properties:
  *                   routeId:
  *                     type: string
- *                   origin:
+ *                     example: "R12345"
+ *                   startLocation:
  *                     type: string
- *                   destination:
+ *                     example: "Colombo"
+ *                   endLocation:
  *                     type: string
+ *                     example: "Kandy"
  *                   distance:
- *                     type: integer
- *                   duration:
- *                     type: string
+ *                     type: number
+ *                     example: 115
  */
 router.get("/", authenticate, getAllRoutes);
 
@@ -87,6 +89,23 @@ router.get("/", authenticate, getAllRoutes);
  *     responses:
  *       200:
  *         description: Route details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 routeId:
+ *                   type: string
+ *                   example: "R12345"
+ *                 startLocation:
+ *                   type: string
+ *                   example: "Colombo"
+ *                 endLocation:
+ *                   type: string
+ *                   example: "Kandy"
+ *                 distance:
+ *                   type: number
+ *                   example: 115
  *       404:
  *         description: Route not found
  */
@@ -112,18 +131,15 @@ router.get("/:routeId", authenticate, getRouteById);
  *           schema:
  *             type: object
  *             properties:
- *               origin:
+ *               startLocation:
  *                 type: string
- *                 example: "New York"
- *               destination:
+ *                 example: "Galle"
+ *               endLocation:
  *                 type: string
- *                 example: "Boston"
+ *                 example: "Matara"
  *               distance:
- *                 type: integer
- *                 example: 215
- *               duration:
- *                 type: string
- *                 example: "4 hours"
+ *                 type: number
+ *                 example: 40
  *     responses:
  *       200:
  *         description: Route updated successfully

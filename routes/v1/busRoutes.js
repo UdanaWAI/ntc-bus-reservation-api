@@ -22,21 +22,31 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               busNumber:
+ *               busId:
  *                 type: string
- *                 example: "AB1234"
+ *                 example: "B12345"
+ *               ntcNumber:
+ *                 type: string
+ *                 example: "NTC67890"
+ *               driverId:
+ *                 type: string
+ *                 example: "D123"
+ *               conductorId:
+ *                 type: string
+ *                 example: "C456"
  *               capacity:
  *                 type: integer
  *                 example: 50
- *               model:
+ *               routeId:
  *                 type: string
- *                 example: "Mercedes Benz"
+ *                 example: "R789"
  *     responses:
  *       201:
  *         description: Bus created successfully
  *       400:
  *         description: Bad request
  */
+
 router.post("/", authenticate, authorize("admin", "operator"), createBus);
 
 /**
@@ -57,12 +67,22 @@ router.post("/", authenticate, authorize("admin", "operator"), createBus);
  *                 properties:
  *                   busId:
  *                     type: string
- *                   busNumber:
+ *                     example: "B12345"
+ *                   ntcNumber:
  *                     type: string
+ *                     example: "NTC67890"
+ *                   driverId:
+ *                     type: string
+ *                     example: "D123"
+ *                   conductorId:
+ *                     type: string
+ *                     example: "C456"
  *                   capacity:
  *                     type: integer
- *                   model:
+ *                     example: 50
+ *                   routeId:
  *                     type: string
+ *                     example: "R789"
  */
 router.get("/", authenticate, getAllBuses);
 
@@ -82,6 +102,29 @@ router.get("/", authenticate, getAllBuses);
  *     responses:
  *       200:
  *         description: Bus details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 busId:
+ *                   type: string
+ *                   example: "B12345"
+ *                 ntcNumber:
+ *                   type: string
+ *                   example: "NTC67890"
+ *                 driverId:
+ *                   type: string
+ *                   example: "D123"
+ *                 conductorId:
+ *                   type: string
+ *                   example: "C456"
+ *                 capacity:
+ *                   type: integer
+ *                   example: 50
+ *                 routeId:
+ *                   type: string
+ *                   example: "R789"
  *       404:
  *         description: Bus not found
  */
@@ -107,15 +150,21 @@ router.get("/:busId", authenticate, getBusById);
  *           schema:
  *             type: object
  *             properties:
- *               busNumber:
+ *               ntcNumber:
  *                 type: string
- *                 example: "AB1234"
+ *                 example: "NTC67890"
+ *               driverId:
+ *                 type: string
+ *                 example: "D123"
+ *               conductorId:
+ *                 type: string
+ *                 example: "C456"
  *               capacity:
  *                 type: integer
- *                 example: 50
- *               model:
+ *                 example: 60
+ *               routeId:
  *                 type: string
- *                 example: "Mercedes Benz"
+ *                 example: "R789"
  *     responses:
  *       200:
  *         description: Bus updated successfully
