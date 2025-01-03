@@ -6,7 +6,13 @@ const connectDB = require("../config/db");
 const archiveBookings = async (archConnection) => {
   try {
     console.log("Archiving bookings...");
-    const bookingsToArchive = await Booking.find({ deleted: true });
+
+    // Find bookings older than 2 minutes that haven't been marked as deleted
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+    const bookingsToArchive = await Booking.find({
+      deleted: false,
+      createdAt: { $lt: twoMinutesAgo },
+    });
 
     if (bookingsToArchive.length > 0) {
       const archiveBookingModel = archConnection.model(
@@ -14,15 +20,18 @@ const archiveBookings = async (archConnection) => {
         new mongoose.Schema(Booking.schema.obj),
         "bookingArchive"
       );
+
+      // Archive the bookings
       await archiveBookingModel.insertMany(bookingsToArchive);
-      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-      await Booking.deleteMany({
-        _id: { $in: bookingsToArchive.map((b) => b._id) },
-        createdAt: { $lt: twoMinutesAgo },
-      });
+
+      // Soft delete the bookings by updating the 'deleted' field
+      await Booking.updateMany(
+        { _id: { $in: bookingsToArchive.map((b) => b._id) } },
+        { $set: { deleted: true } }
+      );
 
       console.log(
-        `Archived ${bookingsToArchive.length} bookings successfully.`
+        `Archived and soft-deleted ${bookingsToArchive.length} bookings successfully.`
       );
     } else {
       console.log("No bookings to archive.");
