@@ -5,20 +5,21 @@ const Route = require("../models/routeModel");
 const User = require("../models/userModel");
 const { holdSeat } = require("../services/bookingService");
 const { sendBookingEmail } = require("../middlewares/emailMiddleware");
+const cacheService = require("../services/cacheService"); // Import cacheService
 
 // Create a booking for multiple seats
 exports.createBooking = async (req, res) => {
   try {
-    const { busId, routeId, seatNumbers } = req.body; // seatNumbers is now an array
-    const commuterId = req.user.id; // Get the commuter's user ID from the JWT token
+    const { busId, routeId, seatNumbers } = req.body;
+    const commuterId = req.user.id; // Get commuter's user ID from JWT token
 
     // Check if bus and route exist
-    const bus = await Bus.findOne({ busId }); // String ID check
+    const bus = await Bus.findOne({ busId });
     if (!bus) {
       return res.status(400).json({ message: "Bus not found" });
     }
 
-    const route = await Route.findOne({ routeId }); // String ID check
+    const route = await Route.findOne({ routeId });
     if (!route) {
       return res.status(400).json({ message: "Route not found" });
     }
@@ -53,6 +54,9 @@ exports.createBooking = async (req, res) => {
       bookings.push(booking);
     }
 
+    // Invalidate the cache after creating bookings
+    cacheService.delCache(`bookings_${commuterId}`);
+
     // Store the booking information in the request body to pass to the middleware
     req.body.bookings = bookings;
     req.body.commuterId = commuterId;
@@ -62,13 +66,13 @@ exports.createBooking = async (req, res) => {
 
     // Call the email function directly, don't use next() here
     await sendBookingEmail(req, res);
-    // Call the email middleware
+
     return res.status(201).json({
       message: "Booking created successfully, and confirmation email sent!",
       bookings,
     });
   } catch (error) {
-    console.error("Error details:", error); // Log the error for debugging
+    console.error("Error details:", error);
     res.status(500).json({
       message: "Failed to create booking",
       error: error.message || error,
@@ -80,7 +84,7 @@ exports.createBooking = async (req, res) => {
 exports.holdSeatForUser = async (req, res) => {
   try {
     const { busId, routeId, seatNumbers } = req.body;
-    const commuterId = req.user.id; // Get commuter's user ID from JWT
+    const commuterId = req.user.id;
 
     // Check if all seats can be held
     const unavailableSeats = [];
@@ -115,14 +119,22 @@ exports.getBookingsByCommuter = async (req, res) => {
   try {
     const commuterId = req.user.id; // Get the commuter's user ID from the JWT token
 
-    // Fetch all bookings for the commuter
+    // Try to get cached bookings first
+    const cachedBookings = await cacheService.getCache(
+      `bookings_${commuterId}`
+    );
+    if (cachedBookings) {
+      return res.status(200).json({ bookings: cachedBookings });
+    }
+
+    // Fetch all bookings for the commuter if not in cache
     const bookings = await Booking.find({ commuterId });
 
-    // Manually fetch related details
+    // Manually fetch related details and store in cache
     const bookingsWithDetails = await Promise.all(
       bookings.map(async (booking) => {
-        const busDetails = await Bus.findOne({ busId: booking.busId }); // String ID check
-        const routeDetails = await Route.findOne({ routeId: booking.routeId }); // String ID check
+        const busDetails = await Bus.findOne({ busId: booking.busId });
+        const routeDetails = await Route.findOne({ routeId: booking.routeId });
 
         return {
           ...booking.toObject(),
@@ -142,6 +154,9 @@ exports.getBookingsByCommuter = async (req, res) => {
       })
     );
 
+    // Cache the bookings for future use
+    cacheService.setCache(`bookings_${commuterId}`, bookingsWithDetails);
+
     res.status(200).json({ bookings: bookingsWithDetails });
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch bookings", error });
@@ -157,9 +172,8 @@ exports.getBookingById = async (req, res) => {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    // Fetch related details manually
-    const busDetails = await Bus.findOne({ busId: booking.busId }); // String ID check
-    const routeDetails = await Route.findOne({ routeId: booking.routeId }); // String ID check
+    const busDetails = await Bus.findOne({ busId: booking.busId });
+    const routeDetails = await Route.findOne({ routeId: booking.routeId });
 
     res.status(200).json({
       booking: {
@@ -186,13 +200,22 @@ exports.getBookingById = async (req, res) => {
 // Get bookings by routeId
 exports.getBookingsByRouteId = async (req, res) => {
   try {
-    const bookings = await Booking.find({ routeId: req.params.routeId }); // String routeId check
+    const routeId = req.params.routeId;
 
-    // Fetch related details for each booking
+    // Try to get cached bookings for the route
+    const cachedBookings = await cacheService.getCache(
+      `bookings_route_${routeId}`
+    );
+    if (cachedBookings) {
+      return res.status(200).json({ bookings: cachedBookings });
+    }
+
+    // Fetch bookings by routeId if not cached
+    const bookings = await Booking.find({ routeId });
+
     const bookingsWithDetails = await Promise.all(
       bookings.map(async (booking) => {
-        const busDetails = await Bus.findOne({ busId: booking.busId }); // String busId check
-
+        const busDetails = await Bus.findOne({ busId: booking.busId });
         return {
           ...booking.toObject(),
           bus: busDetails
@@ -204,6 +227,9 @@ exports.getBookingsByRouteId = async (req, res) => {
         };
       })
     );
+
+    // Cache the bookings for future use
+    cacheService.setCache(`bookings_route_${routeId}`, bookingsWithDetails);
 
     res.status(200).json({ bookings: bookingsWithDetails });
   } catch (error) {
@@ -218,12 +244,10 @@ exports.updateBookingStatus = async (req, res) => {
   try {
     const { status } = req.body;
 
-    // Validate status
     if (!["available", "booked", "on-hold"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
-    // Update booking status
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
       { status },
@@ -233,6 +257,10 @@ exports.updateBookingStatus = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
+
+    // Invalidate the cache for the specific commuter and route
+    cacheService.delCache(`bookings_${booking.commuterId}`);
+    cacheService.delCache(`bookings_route_${booking.routeId}`);
 
     res
       .status(200)
@@ -255,6 +283,10 @@ exports.cancelBooking = async (req, res) => {
       return res.status(404).json({ message: "Booking not found" });
     }
 
+    // Invalidate the cache
+    cacheService.delCache(`bookings_${booking.commuterId}`);
+    cacheService.delCache(`bookings_route_${booking.routeId}`);
+
     res.status(200).json({ message: "Booking canceled successfully", booking });
   } catch (error) {
     res.status(500).json({ message: "Failed to cancel booking", error });
@@ -275,6 +307,10 @@ exports.softDeleteBooking = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
+
+    // Invalidate the cache
+    cacheService.delCache(`bookings_${booking.commuterId}`);
+    cacheService.delCache(`bookings_route_${booking.routeId}`);
 
     res
       .status(200)
@@ -298,6 +334,10 @@ exports.restoreBooking = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
+
+    // Invalidate the cache
+    cacheService.delCache(`bookings_${booking.commuterId}`);
+    cacheService.delCache(`bookings_route_${booking.routeId}`);
 
     res.status(200).json({ message: "Booking restored successfully", booking });
   } catch (error) {
