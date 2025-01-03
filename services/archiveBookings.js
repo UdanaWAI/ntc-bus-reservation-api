@@ -21,8 +21,20 @@ const archiveBookings = async (archConnection) => {
         "bookingArchive"
       );
 
-      // Archive the bookings
-      await archiveBookingModel.insertMany(bookingsToArchive);
+      // Loop through the bookings and check if they exist in the archive
+      for (const booking of bookingsToArchive) {
+        const existingBookingInArchive = await archiveBookingModel.findById(
+          booking._id
+        );
+
+        if (!existingBookingInArchive) {
+          // If the booking doesn't exist in the archive, insert it
+          await archiveBookingModel.insertMany([booking]);
+        } else {
+          // If the booking already exists in the archive, remove it from bookings
+          await Booking.deleteOne({ _id: booking._id });
+        }
+      }
 
       // Soft delete the bookings by updating the 'deleted' field
       await Booking.updateMany(
