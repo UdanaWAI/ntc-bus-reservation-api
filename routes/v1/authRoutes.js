@@ -1,19 +1,34 @@
 const express = require("express");
+const {
+  validateUserRegistration,
+  validateUserLogin,
+} = require("../../middlewares/validationMiddleware");
 const { register, login } = require("../../controllers/authController");
 const router = express.Router();
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: User login and registration management
+ */
 
 /**
  * @swagger
- * /auth/register:
+ * /api/v1/auth/register:
  *   post:
+ *     tags: [Auth]
  *     summary: Register a new user
- *     description: Register a new user by providing email, password, and other details.
+ *     description: Register a new user by providing their name, email, and password.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
  *             properties:
  *               name:
  *                 type: string
@@ -26,24 +41,30 @@ const router = express.Router();
  *                 example: password123
  *     responses:
  *       201:
- *         description: User registered successfully
+ *         description: User registered successfully.
  *       400:
- *         description: Bad request (e.g., missing fields)
+ *         description: Bad request (e.g., missing or invalid fields).
+ *       500:
+ *         description: Internal server error.
  */
-router.post("/register", register);
 
+router.post("/register", validateUserRegistration, register);
 /**
  * @swagger
- * /auth/login:
+ * /api/v1/auth/login:
  *   post:
+ *     tags: [Auth]
  *     summary: Login a user
- *     description: Authenticate a user and return a JWT token.
+ *     description: Authenticate a user and return a JWT token for authorization.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               email:
  *                 type: string
@@ -53,7 +74,7 @@ router.post("/register", register);
  *                 example: password123
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Login successful.
  *         content:
  *           application/json:
  *             schema:
@@ -61,10 +82,13 @@ router.post("/register", register);
  *               properties:
  *                 token:
  *                   type: string
- *                   example: "eyJhbGciOi..."
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR..."
  *       400:
- *         description: Invalid credentials
+ *         description: Invalid email or password.
+ *       500:
+ *         description: Internal server error.
  */
-router.post("/login", login);
+
+router.post("/login", validateUserLogin, login);
 
 module.exports = router;

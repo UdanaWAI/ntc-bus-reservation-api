@@ -11,10 +11,20 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/conductors:
+ * tags:
+ *   name: Conductor
+ *   description: Conductor management operations (Admin only)
+ */
+
+/**
+ * @swagger
+ * /api/v1/conductors:
  *   post:
  *     summary: Create a new conductor (Admin only)
- *     description: Add a new conductor to the system. This action requires Admin authorization.
+ *     description: Add a new conductor to the system. Requires Admin authorization.
+ *     tags: [Conductor]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -47,10 +57,13 @@ router.post("/", authenticate, authorize("admin"), createConductor);
 
 /**
  * @swagger
- * /api/conductors:
+ * /api/v1/conductors:
  *   get:
  *     summary: Get all conductors (Admin only)
- *     description: Fetch a list of all conductors in the system.
+ *     description: Retrieve a list of all conductors in the system. Requires Admin authorization.
+ *     tags: [Conductor]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of conductors
@@ -81,10 +94,13 @@ router.get("/", authenticate, authorize("admin"), getAllConductors);
 
 /**
  * @swagger
- * /api/conductors/{conductorId}:
+ * /api/v1/conductors/{conductorId}:
  *   get:
  *     summary: Get a conductor by ID (Admin only)
- *     description: Fetch details of a specific conductor by ID. This action requires Admin authorization.
+ *     description: Retrieve details of a specific conductor by their ID. Requires Admin authorization.
+ *     tags: [Conductor]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: conductorId
@@ -94,7 +110,7 @@ router.get("/", authenticate, authorize("admin"), getAllConductors);
  *           type: string
  *     responses:
  *       200:
- *         description: Conductor details
+ *         description: Conductor details retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -122,10 +138,13 @@ router.get("/:conductorId", authenticate, authorize("admin"), getConductorById);
 
 /**
  * @swagger
- * /api/conductors/{conductorId}:
+ * /api/v1/conductors/{conductorId}:
  *   put:
  *     summary: Update a conductor's details (Admin only)
- *     description: Update the details of a specific conductor. This action requires Admin authorization.
+ *     description: Modify the details of a specific conductor. Requires Admin authorization.
+ *     tags: [Conductor]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: conductorId
@@ -154,7 +173,7 @@ router.get("/:conductorId", authenticate, authorize("admin"), getConductorById);
  *                 example: "B54321"
  *     responses:
  *       200:
- *         description: Conductor updated successfully
+ *         description: Conductor details updated successfully
  *       400:
  *         description: Bad request
  */
@@ -162,10 +181,13 @@ router.put("/:conductorId", authenticate, authorize("admin"), updateConductor);
 
 /**
  * @swagger
- * /api/conductors/{conductorId}:
+ * /api/v1/conductors/{conductorId}:
  *   delete:
  *     summary: Delete a conductor (Admin only)
- *     description: Delete a conductor from the system. This action requires Admin authorization.
+ *     description: Remove a conductor from the system. Requires Admin authorization.
+ *     tags: [Conductor]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: conductorId

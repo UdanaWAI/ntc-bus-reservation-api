@@ -15,16 +15,40 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/bookings:
+ * tags:
+ *   name: Bookings
+ *   description: Booking management and operations
+ */
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     BearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+
+/**
+ * @swagger
+ * /api/v1/bookings:
  *   post:
+ *     tags: [Bookings]
  *     summary: Create a new booking (Commuter only)
  *     description: Create a new booking for a commuter. This action requires authentication.
+ *     security:
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - seatNumber
+ *               - routeId
+ *               - busId
  *             properties:
  *               seatNumber:
  *                 type: array
@@ -63,16 +87,22 @@ router.post("/", authenticate, createBooking);
 
 /**
  * @swagger
- * /api/bookings/hold:
+ * /api/v1/bookings/hold:
  *   post:
+ *     tags: [Bookings]
  *     summary: Hold a seat for a commuter (Commuter only)
  *     description: Hold a seat for a commuter. This action requires authentication.
+ *     security:
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - seatNumber
+ *               - routeId
  *             properties:
  *               seatNumber:
  *                 type: number
@@ -90,10 +120,13 @@ router.post("/hold", authenticate, holdSeatForUser);
 
 /**
  * @swagger
- * /api/bookings:
+ * /api/v1/bookings:
  *   get:
+ *     tags: [Bookings]
  *     summary: Get all bookings for a commuter (Commuter only)
  *     description: Fetch all bookings for the authenticated commuter.
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: A list of bookings
@@ -119,10 +152,13 @@ router.get("/", authenticate, getBookingsByCommuter);
 
 /**
  * @swagger
- * /api/bookings/{id}:
+ * /api/v1/bookings/{id}:
  *   get:
+ *     tags: [Bookings]
  *     summary: Get a single booking by ID (Admin/Commuter)
  *     description: Fetch details of a specific booking by ID. This is available to both Admin and Commuter.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -140,10 +176,13 @@ router.get("/:id", authenticate, getBookingById);
 
 /**
  * @swagger
- * /api/bookings/route/{routeId}:
+ * /api/v1/bookings/route/{routeId}:
  *   get:
+ *     tags: [Bookings]
  *     summary: Get bookings by routeId (Admin/Commuter)
  *     description: Fetch all bookings associated with a specific route.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: routeId
@@ -161,10 +200,13 @@ router.get("/route/:routeId", authenticate, getBookingsByRouteId);
 
 /**
  * @swagger
- * /api/bookings/{id}/status:
+ * /api/v1/bookings/{id}/status:
  *   put:
+ *     tags: [Bookings]
  *     summary: Update a booking's status (Admin only)
  *     description: Update the status of a booking. This action requires Admin authorization.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -178,6 +220,8 @@ router.get("/route/:routeId", authenticate, getBookingsByRouteId);
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - status
  *             properties:
  *               status:
  *                 type: string
@@ -198,10 +242,13 @@ router.put(
 
 /**
  * @swagger
- * /api/bookings/{id}/cancel:
+ * /api/v1/bookings/{id}/cancel:
  *   put:
+ *     tags: [Bookings]
  *     summary: Cancel a booking (Commuter only)
  *     description: Cancel an existing booking. This action requires authentication.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -219,10 +266,13 @@ router.put("/:id/cancel", authenticate, cancelBooking);
 
 /**
  * @swagger
- * /api/bookings/{id}/soft-delete:
+ * /api/v1/bookings/{id}/soft-delete:
  *   patch:
+ *     tags: [Bookings]
  *     summary: Soft delete a booking (Admin only)
  *     description: Mark a booking as deleted without permanently removing it.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -245,10 +295,13 @@ router.patch(
 
 /**
  * @swagger
- * /api/bookings/{id}/restore:
+ * /api/v1/bookings/{id}/restore:
  *   patch:
+ *     tags: [Bookings]
  *     summary: Restore a soft-deleted booking (Admin only)
  *     description: Restore a previously soft-deleted booking.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

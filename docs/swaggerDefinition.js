@@ -8,7 +8,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: "server.ntcreservation.me/api/v1", // Base URL of your API
+      url: "",
       description: "Development server",
     },
   ],

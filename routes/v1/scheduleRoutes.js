@@ -12,10 +12,20 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/schedules:
+ * tags:
+ *   name: Schedule
+ *   description: Schedule management operations (Admin Only for Create, Update, and Delete)
+ */
+
+/**
+ * @swagger
+ * /api/v1/schedules:
  *   post:
  *     summary: Create a new schedule (Admin Only)
  *     description: Add a new schedule to the system. This action requires Admin authorization.
+ *     tags: [Schedule]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -51,10 +61,13 @@ router.post("/", authenticate, authorize("admin"), createSchedule);
 
 /**
  * @swagger
- * /api/schedules:
+ * /api/v1/schedules:
  *   get:
  *     summary: Get all schedules (Admin/Operator/Commuter)
  *     description: Fetch a list of all schedules in the system.
+ *     tags: [Schedule]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of schedules
@@ -85,10 +98,13 @@ router.get("/", authenticate, getAllSchedules);
 
 /**
  * @swagger
- * /api/schedules/{id}:
+ * /api/v1/schedules/{id}:
  *   get:
  *     summary: Get a schedule by ID (Admin/Operator/Commuter)
  *     description: Fetch details of a specific schedule by ID.
+ *     tags: [Schedule]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -126,10 +142,13 @@ router.get("/:id", authenticate, getScheduleById);
 
 /**
  * @swagger
- * /api/schedules/route/{routeId}:
+ * /api/v1/schedules/route/{routeId}:
  *   get:
  *     summary: Get schedules by route ID (Admin/Operator/Commuter)
  *     description: Fetch a list of schedules for a specific route by route ID.
+ *     tags: [Schedule]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: routeId
@@ -147,10 +166,13 @@ router.get("/route/:routeId", authenticate, getScheduleByRouteId);
 
 /**
  * @swagger
- * /api/schedules/{id}:
+ * /api/v1/schedules/{id}:
  *   put:
  *     summary: Update a schedule (Admin Only)
  *     description: Update the details of a specific schedule. This action requires Admin authorization.
+ *     tags: [Schedule]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -193,10 +215,13 @@ router.put("/:id", authenticate, authorize("admin"), updateSchedule);
 
 /**
  * @swagger
- * /api/schedules/{id}:
+ * /api/v1/schedules/{id}:
  *   delete:
  *     summary: Delete a schedule (Admin Only)
  *     description: Delete a schedule from the system. This action requires Admin authorization.
+ *     tags: [Schedule]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

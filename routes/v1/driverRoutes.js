@@ -11,10 +11,20 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/drivers:
+ * tags:
+ *   name: Driver
+ *   description: Driver management operations (Admin only)
+ */
+
+/**
+ * @swagger
+ * /api/v1/drivers:
  *   post:
  *     summary: Create a new driver (Admin only)
- *     description: Add a new driver to the system. This action requires Admin authorization.
+ *     description: Add a new driver to the system. Requires Admin authorization.
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -47,10 +57,13 @@ router.post("/", authenticate, authorize("admin"), createDriver);
 
 /**
  * @swagger
- * /api/drivers:
+ * /api/v1/drivers:
  *   get:
  *     summary: Get all drivers (Admin only)
- *     description: Fetch a list of all drivers in the system.
+ *     description: Retrieve a list of all drivers in the system. Requires Admin authorization.
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of drivers
@@ -81,10 +94,13 @@ router.get("/", authenticate, authorize("admin"), getAllDrivers);
 
 /**
  * @swagger
- * /api/drivers/{driverId}:
+ * /api/v1/drivers/{driverId}:
  *   get:
  *     summary: Get a driver by ID (Admin only)
- *     description: Fetch details of a specific driver by ID. This action requires Admin authorization.
+ *     description: Retrieve details of a specific driver by their ID. Requires Admin authorization.
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: driverId
@@ -94,7 +110,7 @@ router.get("/", authenticate, authorize("admin"), getAllDrivers);
  *           type: string
  *     responses:
  *       200:
- *         description: Driver details
+ *         description: Driver details retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -122,10 +138,13 @@ router.get("/:driverId", authenticate, authorize("admin"), getDriverById);
 
 /**
  * @swagger
- * /api/drivers/{driverId}:
+ * /api/v1/drivers/{driverId}:
  *   put:
  *     summary: Update a driver's details (Admin only)
- *     description: Update the details of a specific driver. This action requires Admin authorization.
+ *     description: Modify the details of a specific driver. Requires Admin authorization.
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: driverId
@@ -162,10 +181,13 @@ router.put("/:driverId", authenticate, authorize("admin"), updateDriver);
 
 /**
  * @swagger
- * /api/drivers/{driverId}:
+ * /api/v1/drivers/{driverId}:
  *   delete:
  *     summary: Delete a driver (Admin only)
- *     description: Delete a driver from the system. This action requires Admin authorization.
+ *     description: Remove a driver from the system. Requires Admin authorization.
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: driverId

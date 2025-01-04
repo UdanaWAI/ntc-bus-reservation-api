@@ -11,10 +11,20 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/routes:
+ * tags:
+ *   name: Route
+ *   description: Route management operations (Admin Only for Create, Update, and Delete)
+ */
+
+/**
+ * @swagger
+ * /api/v1/routes:
  *   post:
  *     summary: Create a new route (Admin Only)
- *     description: Add a new route to the system. This action requires Admin authorization.
+ *     description: Add a new route to the system. Requires Admin authorization.
+ *     tags: [Route]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -44,10 +54,13 @@ router.post("/", authenticate, authorize("admin"), createRoute);
 
 /**
  * @swagger
- * /api/routes:
+ * /api/v1/routes:
  *   get:
  *     summary: Get all routes (Admin/Operator/Commuter)
  *     description: Fetch a list of all routes in the system.
+ *     tags: [Route]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of routes
@@ -75,10 +88,13 @@ router.get("/", authenticate, getAllRoutes);
 
 /**
  * @swagger
- * /api/routes/{routeId}:
+ * /api/v1/routes/{routeId}:
  *   get:
  *     summary: Get a route by ID (Admin/Operator/Commuter)
- *     description: Fetch details of a specific route by ID.
+ *     description: Retrieve details of a specific route by its ID.
+ *     tags: [Route]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: routeId
@@ -88,7 +104,7 @@ router.get("/", authenticate, getAllRoutes);
  *           type: string
  *     responses:
  *       200:
- *         description: Route details
+ *         description: Route details retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -113,10 +129,13 @@ router.get("/:routeId", authenticate, getRouteById);
 
 /**
  * @swagger
- * /api/routes/{routeId}:
+ * /api/v1/routes/{routeId}:
  *   put:
  *     summary: Update a route (Admin Only)
- *     description: Update the details of a specific route. This action requires Admin authorization.
+ *     description: Modify the details of a specific route. Requires Admin authorization.
+ *     tags: [Route]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: routeId
@@ -150,10 +169,13 @@ router.put("/:routeId", authenticate, authorize("admin"), updateRoute);
 
 /**
  * @swagger
- * /api/routes/{routeId}:
+ * /api/v1/routes/{routeId}:
  *   delete:
  *     summary: Delete a route (Admin Only)
- *     description: Delete a route from the system. This action requires Admin authorization.
+ *     description: Remove a route from the system. Requires Admin authorization.
+ *     tags: [Route]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: routeId

@@ -11,10 +11,20 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/buses:
+ * tags:
+ *   name: Bus
+ *   description: Bus management operations (Admin/Operator)
+ */
+
+/**
+ * @swagger
+ * /api/v1/buses:
  *   post:
  *     summary: Create a new bus (Admin/Operator Only)
- *     description: Add a new bus to the system. This action requires Admin or Operator authorization.
+ *     description: Add a new bus to the system. Requires Admin or Operator authorization.
+ *     tags: [Bus]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -46,15 +56,17 @@ const router = express.Router();
  *       400:
  *         description: Bad request
  */
-
 router.post("/", authenticate, authorize("admin", "operator"), createBus);
 
 /**
  * @swagger
- * /api/buses:
+ * /api/v1/buses:
  *   get:
  *     summary: Get all buses (Admin/Operator/Commuter)
  *     description: Fetch a list of all buses available in the system.
+ *     tags: [Bus]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of buses
@@ -88,10 +100,13 @@ router.get("/", authenticate, getAllBuses);
 
 /**
  * @swagger
- * /api/buses/{busId}:
+ * /api/v1/buses/{busId}:
  *   get:
  *     summary: Get a single bus by ID (Admin/Operator/Commuter)
  *     description: Fetch details of a specific bus by its ID.
+ *     tags: [Bus]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: busId
@@ -132,10 +147,13 @@ router.get("/:busId", authenticate, getBusById);
 
 /**
  * @swagger
- * /api/buses/{busId}:
+ * /api/v1/buses/{busId}:
  *   put:
  *     summary: Update a bus (Admin/Operator Only)
- *     description: Update the details of a specific bus. This action requires Admin or Operator authorization.
+ *     description: Update the details of a specific bus. Requires Admin or Operator authorization.
+ *     tags: [Bus]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: busId
@@ -175,10 +193,13 @@ router.put("/:busId", authenticate, authorize("admin", "operator"), updateBus);
 
 /**
  * @swagger
- * /api/buses/{busId}:
+ * /api/v1/buses/{busId}:
  *   delete:
  *     summary: Delete a bus (Admin Only)
- *     description: Delete a bus from the system. This action requires Admin authorization.
+ *     description: Delete a bus from the system. Requires Admin authorization.
+ *     tags: [Bus]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: busId

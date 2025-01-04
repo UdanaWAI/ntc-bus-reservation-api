@@ -1,7 +1,7 @@
 const { body } = require("express-validator");
-const validator = require("validator"); // Import validator package
+const validator = require("validator");
 
-// Common validation middleware for fields shared by Driver and Conductor
+// Common validation middleware for fields shared by Driver, Conductor, and User registration
 const validateCommonFields = [
   body("name").notEmpty().withMessage("Name is required"),
 
@@ -12,4 +12,49 @@ const validateCommonFields = [
     .withMessage("License number is required"),
 ];
 
-module.exports = { validateCommonFields };
+// User-specific validation for registration
+const validateUserRegistration = [
+  body("name")
+    .notEmpty()
+    .withMessage("Name is required")
+    .isLength({ min: 3 })
+    .withMessage("Name must be at least 3 characters"),
+
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Please enter a valid email address")
+    .normalizeEmail(),
+
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters")
+    .matches(/[0-9]/)
+    .withMessage("Password must contain at least one number")
+    .matches(/[A-Za-z]/)
+    .withMessage("Password must contain at least one letter"),
+];
+
+const validateUserLogin = [
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Please enter a valid email address")
+    .normalizeEmail(),
+
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+];
+
+module.exports = {
+  validateCommonFields,
+  validateUserRegistration,
+  validateUserLogin,
+};
