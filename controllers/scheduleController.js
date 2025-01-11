@@ -229,3 +229,61 @@ exports.getScheduleByRouteId = async (req, res) => {
       .json({ message: "Failed to fetch schedule by routeId", error });
   }
 };
+
+// Get all schedules with optional filters
+exports.getAllSchedules = async (req, res) => {
+  try {
+    const { routeId, busId, startTime, endTime, date } = req.query;
+
+    // Build the filter object dynamically based on query parameters
+    const filter = {};
+    if (routeId) filter.routeId = routeId;
+    if (busId) filter.busId = busId;
+    if (startTime) filter.startTime = { $gte: new Date(startTime) };
+    if (endTime) filter.endTime = { $lte: new Date(endTime) };
+    if (date) filter.date = date;
+
+    // Cache key for filtered schedules
+    const cacheKey = `filtered_schedules_${JSON.stringify(req.query)}`;
+
+    // Try to get the cached schedules
+    const cachedSchedules = getCache(cacheKey);
+    if (cachedSchedules) {
+      return res.status(200).json({ schedules: cachedSchedules });
+    }
+
+    const schedules = await Schedule.find(filter);
+
+    // For each schedule, fetch the corresponding route and bus details
+    const schedulesWithDetails = await Promise.all(
+      schedules.map(async (schedule) => {
+        const routeDetails = await Route.findOne({ routeId: schedule.routeId });
+        const busDetails = await Bus.findOne({ busId: schedule.busId });
+
+        // Return the schedule with route and bus details
+        return {
+          ...schedule.toObject(),
+          route: routeDetails
+            ? {
+                startLocation: routeDetails.startLocation,
+                endLocation: routeDetails.endLocation,
+              }
+            : null,
+          bus: busDetails
+            ? {
+                ntcNumber: busDetails.ntcNumber,
+                capacity: busDetails.capacity,
+              }
+            : null,
+        };
+      })
+    );
+
+    // Cache the schedules for future requests
+    setCache(cacheKey, schedulesWithDetails);
+
+    res.status(200).json({ schedules: schedulesWithDetails });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch schedules", error });
+  }
+};

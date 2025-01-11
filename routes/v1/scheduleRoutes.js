@@ -238,3 +238,119 @@ router.put("/:id", authenticate, authorize("admin"), updateSchedule);
 router.delete("/:id", authenticate, authorize("admin"), deleteSchedule);
 
 module.exports = router;
+
+/**
+ * @swagger
+ * /api/v1/schedules:
+ *   get:
+ *     summary: Get all schedules with optional filters (Admin/Operator/Commuter)
+ *     description: Fetch a list of all schedules in the system. You can filter schedules using query parameters.
+ *     tags: [Schedule]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: routeId
+ *         required: false
+ *         description: Filter schedules by route ID.
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: busId
+ *         required: false
+ *         description: Filter schedules by bus ID.
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: startTime
+ *         required: false
+ *         description: Filter schedules by start time.
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *       - in: query
+ *         name: endTime
+ *         required: false
+ *         description: Filter schedules by end time.
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *       - in: query
+ *         name: date
+ *         required: false
+ *         description: Filter schedules by date.
+ *         schema:
+ *           type: string
+ *           format: date
+ *     responses:
+ *       200:
+ *         description: A list of schedules
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   scheduleId:
+ *                     type: string
+ *                   routeId:
+ *                     type: string
+ *                   busId:
+ *                     type: string
+ *                   startTime:
+ *                     type: string
+ *                     format: date-time
+ *                   endTime:
+ *                     type: string
+ *                     format: date-time
+ *                   date:
+ *                     type: string
+ *                     format: date
+ *       400:
+ *         description: Invalid query parameters
+ */
+router.get("/", authenticate, async (req, res) => {
+  try {
+    const { routeId, busId, startTime, endTime, date } = req.query;
+
+    // Build the filter object dynamically
+    const filter = {};
+    if (routeId) filter.routeId = routeId;
+    if (busId) filter.busId = busId;
+    if (startTime) filter.startTime = { $gte: new Date(startTime) };
+    if (endTime) filter.endTime = { $lte: new Date(endTime) };
+    if (date) filter.date = date;
+
+    // Fetch schedules with the filter
+    const schedules = await Schedule.find(filter);
+
+    // For each schedule, fetch the corresponding route and bus details
+    const schedulesWithDetails = await Promise.all(
+      schedules.map(async (schedule) => {
+        const routeDetails = await Route.findOne({ routeId: schedule.routeId });
+        const busDetails = await Bus.findOne({ busId: schedule.busId });
+
+        return {
+          ...schedule.toObject(),
+          route: routeDetails
+            ? {
+                startLocation: routeDetails.startLocation,
+                endLocation: routeDetails.endLocation,
+              }
+            : null,
+          bus: busDetails
+            ? {
+                ntcNumber: busDetails.ntcNumber,
+                capacity: busDetails.capacity,
+              }
+            : null,
+        };
+      })
+    );
+
+    res.status(200).json({ schedules: schedulesWithDetails });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch schedules", error });
+  }
+});
